@@ -6,7 +6,7 @@ module Mws::Apis::Feeds
 
     attr_reader :sku, :description
 
-    attr_accessor :upc, :tax_code, :msrp, :brand, :manufacturer, :name, :description, :bullet_points
+    attr_accessor :upc, :upc_type, :tax_code, :msrp, :brand, :manufacturer, :name, :description, :bullet_points, :item_type
     attr_accessor :item_dimensions, :package_dimensions, :package_weight, :shipping_weight
     attr_accessor :category, :details
 
@@ -21,7 +21,7 @@ module Mws::Apis::Feeds
       Mws::Serializer.tree name, parent do |xml|
         xml.SKU @sku
         xml.StandardProductID {
-          xml.Type 'UPC'
+          xml.Type @upc_type
           xml.Value @upc
         } unless @upc.nil?
         xml.ProductTaxCode @tax_code unless @upc.nil?
@@ -41,6 +41,7 @@ module Mws::Apis::Feeds
           @msrp.to_xml 'MSRP', xml unless @msrp.nil?
 
           xml.Manufacturer @manufacturer unless @manufacturer.nil?
+          xml.ItemType @item_type unless @item_type.nil?
         }
 
         unless @details.nil?
@@ -156,7 +157,7 @@ module Mws::Apis::Feeds
 
       def as_money(amount, currency=nil)
         Money.new amount, currency
-      end            
+      end
 
       def method_missing(method, *args, &block)
         if block_given?
