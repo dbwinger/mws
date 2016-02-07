@@ -6,13 +6,18 @@ module Mws::Apis::Feeds
 
     attr_reader :sku, :description
 
-    attr_accessor :upc, :upc_type, :tax_code, :msrp, :brand, :manufacturer, :name, :description, :bullet_points, :item_type
-    attr_accessor :item_dimensions, :package_dimensions, :package_weight, :shipping_weight
-    attr_accessor :category, :details
+    attr_accessor :upc, :upc_type, :tax_code, :msrp, :brand, :manufacturer,
+                  :name, :description, :bullet_points, :item_type, :launch_date,
+                  :item_dimensions, :package_dimensions, :package_weight,
+                  :shipping_weight, :category, :details, :condition_type,
+                  :mfr_part_number, :search_terms, :used_fors,
+                  :other_item_attributes, :target_audiences,
+                  :recommended_browse_nodes
 
     def initialize(sku, &block)
       @sku = sku
-      @bullet_points = []
+      @bullet_points = @search_terms = @used_fors = []
+      @other_item_attributes = @target_audiences = @recommended_browse_nodes = []
       ProductBuilder.new(self).instance_eval &block if block_given?
       raise Mws::Errors::ValidationError, 'Product must have a category when details are specified.' if @details and @category.nil?
     end
@@ -24,12 +29,18 @@ module Mws::Apis::Feeds
           xml.Type @upc_type
           xml.Value @upc
         } unless @upc.nil?
+
         xml.ProductTaxCode @tax_code unless @upc.nil?
+        xml.LaunchDate @launch_date unless @launch_date.nil?
+        xml.Condition {
+          xml.ConditionType @condition_type
+        } unless @condition_type.nil?
+
         xml.DescriptionData {
           xml.Title @name unless @name.nil?
           xml.Brand @brand  unless @brand.nil?
           xml.Description @description  unless @description.nil?
-          bullet_points.each do | bullet_point |
+          bullet_points.each do |bullet_point|
             xml.BulletPoint bullet_point
           end
           @item_dimensions.to_xml('ItemDimensions', xml) unless @item_dimensions.nil?
@@ -41,12 +52,31 @@ module Mws::Apis::Feeds
           @msrp.to_xml 'MSRP', xml unless @msrp.nil?
 
           xml.Manufacturer @manufacturer unless @manufacturer.nil?
+          xml.MfrPartNumber @mfr_part_number unless mfr_part_number.nil?
+          search_terms.each do |search_term|
+            xml.SearchTerms search_term
+          end
+          used_fors.each do |used_for|
+            xml.UsedFor used_for
+          end
           xml.ItemType @item_type unless @item_type.nil?
+
+          other_item_attributes.each do |other_item_attribute|
+            xm.OtherItemAttributes other_item_attribute
+          end
+
+          target_audiences.each do |target_audience|
+            xm.TargetAudience target_audience
+          end
+
+          recommended_browse_nodes.each do |recommended_browse_node|
+            xm.RecommendedBrowseNode recommended_browse_node
+          end
         }
 
         unless @details.nil?
           xml.ProductData {
-            CategorySerializer.xml_for @category, {product_type: @details}, xml
+            CategorySerializer.xml_for @category, { product_type: @details }, xml
           }
         end
       end
@@ -96,7 +126,27 @@ module Mws::Apis::Feeds
         @product.bullet_points << bullet_point
       end
 
-      def details(details=nil, &block)
+      def search_term(search_term)
+        @product.search_terms << search_term
+      end
+
+      def used_for(used_for)
+        @product.used_fors << used_for
+      end
+
+      def other_item_attribute(other_item_attribute)
+        @product.other_item_attributes << other_item_attribute
+      end
+
+      def target_audience(target_audience)
+        @product.target_audiences << target_audience
+      end
+
+      def recommended_browse_node(recommended_browse_node)
+        @product.recommended_browse_nodes << recommended_browse_node
+      end
+
+      def details(details = nil, &block)
         @product.details = details || {}
         DetailBuilder.new(@product.details).instance_eval &block if block_given?
       end

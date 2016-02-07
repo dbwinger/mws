@@ -91,6 +91,8 @@ module Mws::Apis::Feeds
           messages << message(resource, operation_type)
         end
       end
+      puts "------xml"
+      p feed.to_xml
       Transaction.new @feeds.submit(feed.to_xml, feed_type: @feed_type, purge_and_replace: purge_and_replace) do
         messages.each do | message |
           item message.id, message.resource.sku, message.operation_type,
