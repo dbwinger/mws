@@ -16,7 +16,7 @@ module Mws::Apis::Feeds
         @product_relationships.each do |product_relationship|
           xml.Relation {
             xml.SKU product_relationship[:sku]
-            xml.ChildDetailPageDisplay product_relationship[:child_detail_page_display]
+            #xml.ChildDetailPageDisplay product_relationship[:child_detail_page_display]
             xml.Type product_relationship[:type]
           }
         end

@@ -12,14 +12,21 @@ module Mws::Apis::Feeds
                   :shipping_weight, :category, :details, :condition_type,
                   :mfr_part_number, :search_terms, :used_fors,
                   :other_item_attributes, :target_audiences,
-                  :recommended_browse_nodes
+                  :recommended_browse_nodes, :variation_data
 
     def initialize(sku, &block)
       @sku = sku
-      @bullet_points = @search_terms = @used_fors = []
-      @other_item_attributes = @target_audiences = @recommended_browse_nodes = []
+      @bullet_points = []
+      @search_terms = []
+      @used_fors = []
+      @other_item_attributes = []
+      @target_audiences = []
+      @recommended_browse_nodes = []
       ProductBuilder.new(self).instance_eval &block if block_given?
-      raise Mws::Errors::ValidationError, 'Product must have a category when details are specified.' if @details and @category.nil?
+
+      if @details and @category.nil?
+        raise Mws::Errors::ValidationError, 'Product must have a category when details are specified.'
+      end
     end
 
     def to_xml(name='Product', parent=nil)
@@ -74,9 +81,13 @@ module Mws::Apis::Feeds
           end
         }
 
-        unless @details.nil?
+        if @details.present? || @variation_data.present?
+          details = {}
+          details[:product_type] = @details if @details.present?
+          details[:variation_data] = @variation_data if @variation_data.present?
+
           xml.ProductData {
-            CategorySerializer.xml_for @category, { product_type: @details }, xml
+            CategorySerializer.xml_for @category, details, xml
           }
         end
       end
@@ -151,6 +162,10 @@ module Mws::Apis::Feeds
         DetailBuilder.new(@product.details).instance_eval &block if block_given?
       end
 
+      def variation_data(variation_data = nil, &block)
+        @product.variation_data = variation_data || {}
+        VariationBuilder.new(@product.variation_data).instance_eval &block if block_given?
+      end
     end
 
     class Dimensions
@@ -217,8 +232,37 @@ module Mws::Apis::Feeds
           @details[method] = args[0]
         end
       end
-
     end
 
+    class VariationBuilder
+      def initialize(variation_data)
+        @variation_data = variation_data
+      end
+
+      def variation_theme(value)
+        @variation_data[:variation_theme] = value
+      end
+
+      def parentage(value)
+        @variation_data[:parentage] = value
+      end
+
+      def size(value)
+        @variation_data[:size] = value
+      end
+
+      def color(value)
+        @variation_data[:color] = value
+      end
+
+      def method_missing(method, *args, &block)
+        if block_given?
+          @details[method] = {}
+          DetailBuilder.new(@details[method]).instance_eval(&block)
+        elsif args.length > 0
+          @details[method] = args[0]
+        end
+      end
+    end
   end
 end

@@ -29,7 +29,7 @@ module Mws::Apis::Feeds
     def submit(body, params)
       params[:feed_type] = Feed::Type.for(params[:feed_type]).val
       doc = @connection.post '/', params, body, @defaults.merge(action: 'SubmitFeed')
-      SubmissionInfo.from_xml doc.xpath('FeedSubmissionInfo').first
+      SubmissionInfo.from_xml(doc.xpath('FeedSubmissionInfo').first, body)
     end
 
     def cancel(options={})
@@ -92,7 +92,7 @@ module Mws::Apis::Feeds
         end
       end
       puts "------xml"
-      p feed.to_xml
+      puts feed.to_xml.to_yaml
       Transaction.new @feeds.submit(feed.to_xml, feed_type: @feed_type, purge_and_replace: purge_and_replace) do
         messages.each do | message |
           item message.id, message.resource.sku, message.operation_type,
