@@ -5,16 +5,16 @@ module Mws::Apis::Feeds
   class Feed
 
     Type = Mws::Enum.for(
-      product: '_POST_PRODUCT_DATA_', 
-      product_relationship: '_POST_PRODUCT_RELATIONSHIP_DATA_', 
-      item: '_POST_ITEM_DATA_', 
-      override: '_POST_PRODUCT_OVERRIDES_DATA_', 
-      image: '_POST_PRODUCT_IMAGE_DATA_', 
-      price: '_POST_PRODUCT_PRICING_DATA_', 
-      inventory: '_POST_INVENTORY_AVAILABILITY_DATA_', 
-      order_acknowledgement: '_POST_ORDER_ACKNOWLEDGEMENT_DATA_', 
-      order_fufillment: '_POST_ORDER_FULFILLMENT_DATA_', 
-      fulfillment_order_request: '_POST_FULFILLMENT_ORDER_REQUEST_DATA_', 
+      product: '_POST_PRODUCT_DATA_',
+      product_relationship: '_POST_PRODUCT_RELATIONSHIP_DATA_',
+      item: '_POST_ITEM_DATA_',
+      override: '_POST_PRODUCT_OVERRIDES_DATA_',
+      image: '_POST_PRODUCT_IMAGE_DATA_',
+      price: '_POST_PRODUCT_PRICING_DATA_',
+      inventory: '_POST_INVENTORY_AVAILABILITY_DATA_',
+      order_acknowledgement: '_POST_ORDER_ACKNOWLEDGEMENT_DATA_',
+      order_fufillment: '_POST_ORDER_FULFILLMENT_DATA_',
+      fulfillment_order_request: '_POST_FULFILLMENT_ORDER_REQUEST_DATA_',
       fulfillment_order_cancellation: '_POST_FULFILLMENT_ORDER_CANCELLATION_REQUEST_DATA'
     )
 
@@ -38,7 +38,7 @@ module Mws::Apis::Feeds
 
     def to_xml
       Nokogiri::XML::Builder.new do | xml |
-        xml.AmazonEnvelope('xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:noNamespaceSchemaLocation' => 'amznenvelope.xsd') {
+        xml.AmazonEnvelope('xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:noNamespaceSchemaLocation' => 'amzn-envelope.xsd') {
           xml.Header {
             xml.DocumentVersion '1.01'
             xml.MerchantIdentifier @merchant
@@ -69,23 +69,23 @@ module Mws::Apis::Feeds
 
       Type = Mws::Enum.for(
         fufillment_center: 'FulfillmentCenter',
-        inventory: 'Inventory', 
-        listings: 'Listings', 
-        order_acknowledgement: 'OrderAcknowledgement', 
-        order_adjustment: 'OrderAdjustment', 
-        order_fulfillment: 'OrderFulfillment', 
-        override: 'Override', 
+        inventory: 'Inventory',
+        listings: 'Listings',
+        order_acknowledgement: 'OrderAcknowledgement',
+        order_adjustment: 'OrderAdjustment',
+        order_fulfillment: 'OrderFulfillment',
+        override: 'Override',
         price: 'Price',
         processing_report: 'ProcessingReport',
         product: 'Product',
         image: 'ProductImage',
-        relationship: 'Relationship',
+        product_relationship: 'Relationship',
         settlement_report: 'SettlementReport'
       )
 
       OperationType = Mws::Enum.for(
-        update: 'Update', 
-        delete: 'Delete', 
+        update: 'Update',
+        delete: 'Delete',
         partial_update: 'PartialUpdate'
       )
 
