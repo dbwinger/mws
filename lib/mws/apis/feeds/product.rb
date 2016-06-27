@@ -12,7 +12,7 @@ module Mws::Apis::Feeds
                   :shipping_weight, :category, :details, :condition_type,
                   :mfr_part_number, :search_terms, :used_fors,
                   :other_item_attributes, :target_audiences,
-                  :recommended_browse_nodes, :variation_data
+                  :recommended_browse_nodes, :variation_data, :release_date
 
     def initialize(sku, &block)
       @sku = sku
@@ -39,6 +39,7 @@ module Mws::Apis::Feeds
 
         xml.ProductTaxCode @tax_code unless @upc.nil?
         xml.LaunchDate @launch_date unless @launch_date.nil?
+        xml.ReleaseDate @release_date unless @release_date.nil?
         xml.Condition {
           xml.ConditionType @condition_type
         } unless @condition_type.nil?
