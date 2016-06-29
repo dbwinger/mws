@@ -12,7 +12,8 @@ module Mws::Apis::Feeds
                   :shipping_weight, :category, :details, :condition_type,
                   :mfr_part_number, :search_terms, :used_fors,
                   :other_item_attributes, :target_audiences,
-                  :recommended_browse_nodes, :variation_data, :release_date
+                  :recommended_browse_nodes, :variation_data,
+                  :release_date, :classification_data
 
     def initialize(sku, &block)
       @sku = sku
@@ -82,15 +83,14 @@ module Mws::Apis::Feeds
           end
         }
 
-        if @details.present? || @variation_data.present?
-          details = {}
-          details[:product_type] = @details if @details.present?
-          details[:variation_data] = @variation_data if @variation_data.present?
+        details = {}
+        details[:product_type] = @details if @details.present?
+        details[:variation_data] = @variation_data if @variation_data.present?
+        details[:classification_data] = @classification_data if @classification_data.present?
 
-          xml.ProductData {
-            CategorySerializer.xml_for @category, details, xml
-          }
-        end
+        xml.ProductData {
+          CategorySerializer.xml_for @category, details, xml
+        } unless details.blank?
       end
     end
 
@@ -254,6 +254,33 @@ module Mws::Apis::Feeds
 
       def color(value)
         @variation_data[:color] = value
+      end
+
+      def method_missing(method, *args, &block)
+        if block_given?
+          @details[method] = {}
+          DetailBuilder.new(@details[method]).instance_eval(&block)
+        elsif args.length > 0
+          @details[method] = args[0]
+        end
+      end
+    end
+
+    class ClassificationBuilder
+      def initialize(variation_data)
+        @classificaiton_data = classificaiton_data
+      end
+
+      def clothing_type(value)
+        @classificaiton_data[:clothing_type] = value
+      end
+
+      def department(value)
+        @classificaiton_data[:department] = value
+      end
+
+      def model_number(value)
+        @classificaiton_data[:model_number] = value
       end
 
       def method_missing(method, *args, &block)
