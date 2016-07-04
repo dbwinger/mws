@@ -13,7 +13,7 @@ module Mws::Apis::Feeds
       price: '_POST_PRODUCT_PRICING_DATA_',
       inventory: '_POST_INVENTORY_AVAILABILITY_DATA_',
       order_acknowledgement: '_POST_ORDER_ACKNOWLEDGEMENT_DATA_',
-      order_fufillment: '_POST_ORDER_FULFILLMENT_DATA_',
+      order_fulfillment: '_POST_ORDER_FULFILLMENT_DATA_',
       fulfillment_order_request: '_POST_FULFILLMENT_ORDER_REQUEST_DATA_',
       fulfillment_order_cancellation: '_POST_FULFILLMENT_ORDER_CANCELLATION_REQUEST_DATA'
     )
@@ -44,7 +44,7 @@ module Mws::Apis::Feeds
             xml.MerchantIdentifier @merchant
           }
           xml.MessageType @message_type.val
-          xml.PurgeAndReplace @purge_and_replace
+          xml.PurgeAndReplace @purge_and_replace if include_element?(@message_type.val)
           @messages.each do | message |
             message.to_xml xml
           end
@@ -103,12 +103,22 @@ module Mws::Apis::Feeds
       def to_xml(parent)
         Mws::Serializer.tree 'Message', parent do | xml |
           xml.MessageID @id
-          xml.OperationType @operation_type.val
+          xml.OperationType @operation_type.val if include_element?(@type.val)
           @resource.to_xml @type.val, xml
         end
       end
+
+      private
+
+      def include_element?(message_type)
+        !%w(OrderAcknowledgement, OrderFulfillment).include?(message_type)
+      end
     end
 
-  end
+    private
 
+    def include_element?(message_type)
+      !%w(OrderAcknowledgement, OrderFulfillment).include?(message_type)
+    end
+  end
 end
