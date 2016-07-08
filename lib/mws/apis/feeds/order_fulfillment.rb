@@ -32,7 +32,7 @@ module Mws::Apis::Feeds
           xml.Item do
             xml.AmazonOrderItemCode item.amazon_item_id
             xml.MerchantOrderItemID item.id
-            xml.MerchantFulfillmentItemID '12345'
+            xml.MerchantFulfillmentItemID @merchant_fulfillment_id
             xml.Quantity item.quantity
           end
         end
