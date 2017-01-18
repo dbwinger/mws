@@ -19,7 +19,6 @@ module Mws::Apis::Feeds
 
     def to_xml(name='OrderFulfillment', parent = nil)
       Mws::Serializer.tree name, parent do |xml|
-        xml.AmazonOrderID @amazon_order_id
         xml.MerchantOrderID @merchant_order_id if @merchant_order_id
         xml.MerchantFulfillmentID @merchant_fulfillment_id if @merchant_fulfillment_id
         xml.FulfillmentDate @fulfillment_date if @fulfillment_date
@@ -30,7 +29,6 @@ module Mws::Apis::Feeds
         end
         items.each do |item|
           xml.Item do
-            xml.AmazonOrderItemCode item.amazon_item_id
             xml.MerchantOrderItemID item.id
             xml.MerchantFulfillmentItemID '12345'
             xml.Quantity item.quantity
@@ -40,4 +38,3 @@ module Mws::Apis::Feeds
     end
   end
 end
-
