@@ -44,7 +44,6 @@ module Mws::Apis::Feeds
             xml.MerchantIdentifier @merchant
           }
           xml.MessageType @message_type.val
-          xml.PurgeAndReplace @purge_and_replace if include_element?(@message_type.val)
           @messages.each do | message |
             message.to_xml xml
           end
