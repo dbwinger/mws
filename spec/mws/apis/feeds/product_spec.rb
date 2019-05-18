@@ -2,13 +2,11 @@ require 'spec_helper'
 require 'nokogiri'
 
 module Mws::Apis::Feeds
-
-  describe Product do 
-
+  describe Product do
     context '.new' do
 
       it 'should require a sku' do
-        expect { Product.new }.to raise_error ArgumentError 
+        expect { Product.new }.to raise_error ArgumentError
 
         sku = '12343533'
         Product.new(sku).sku.should == sku
@@ -16,7 +14,7 @@ module Mws::Apis::Feeds
 
       it 'should support product builder block initialization' do
         capture = nil
-        product = Product.new('123431') do 
+        product = Product.new('123431') do
           capture = self
         end
         capture.should be_an_instance_of Product::ProductBuilder
@@ -78,7 +76,7 @@ module Mws::Apis::Feeds
         product.package_dimensions.height.should == Distance.new(1, :meters)
         product.package_dimensions.weight.should == Weight.new(4, :pounds)
       end
-    
+
       it 'should require valid package and shipping dimensions' do
         capture = self
         product = Product.new('12324') do
@@ -153,13 +151,10 @@ module Mws::Apis::Feeds
           end
         }.to raise_error Mws::Errors::ValidationError, 'Product must have a category when details are specified.'
       end
-
     end
 
     context '#to_xml' do
-
       it 'should create xml for standard attributes' do
-
         expected = Nokogiri::XML::Builder.new do
           Product {
             SKU '12343'
@@ -223,7 +218,6 @@ module Mws::Apis::Feeds
           package_weight 2, :pounds
           shipping_weight 3, :miligrams
         end.to_xml
-        
       end
 
       it 'should create xml for product details' do
@@ -245,20 +239,17 @@ module Mws::Apis::Feeds
           }
         end.doc.root.to_xml
 
-        expected.should == Product.new('12343') do 
+        expected.should == Product.new('12343') do
           category :ce
           details {
             cable_or_adapter {
               cable_length as_distance 6, :feet
               cable_weight as_weight 6, :ounces
               cost_savings as_money 6.99, :usd
-            }    
+            }
           }
         end.to_xml
       end
-
     end
-
   end
-
 end
