@@ -7,9 +7,9 @@ module Mws::Apis::Feeds
     attr_accessor :upc, :upc_type, :tax_code, :msrp, :brand, :manufacturer,
                   :name, :description, :bullet_points, :item_type, :launch_date,
                   :item_dimensions, :package_dimensions, :package_weight,
-                  :shipping_weight, :category, :details, :condition_type,
-                  :mfr_part_number, :search_terms, :used_fors,
-                  :other_item_attributes, :target_audiences,
+                  :shipping_weight, :category, :category_data, :details,
+                  :condition_type, :mfr_part_number, :search_terms,
+                  :used_fors, :other_item_attributes, :target_audiences,
                   :recommended_browse_nodes, :variation_data,
                   :release_date, :classification_data
 
@@ -20,6 +20,7 @@ module Mws::Apis::Feeds
       @used_fors = []
       @other_item_attributes = []
       @target_audiences = []
+      @category_data = {}
       @recommended_browse_nodes = []
 
       ProductBuilder.new(self).instance_eval &block if block_given?
@@ -82,14 +83,14 @@ module Mws::Apis::Feeds
           end
         }
 
-        nodes = {}
-        nodes[:product_type] = @details if @details.present?
-        nodes[:variation_data] = @variation_data if @variation_data.present?
-        nodes[:classification_data] = @classification_data if @classification_data.present?
+        @category_data ||= {}
+        @category_data[:product_type] = @details if @details.present?
+        @category_data[:variation_data] = @variation_data if @variation_data.present?
+        @category_data[:classification_data] = @classification_data if @classification_data.present?
 
         xml.ProductData {
-          CategorySerializer.xml_for @category, nodes, xml
-        } if nodes.present?
+          CategorySerializer.xml_for @category, @category_data, xml
+        } if @category_data.present?
       end
     end
 
@@ -143,31 +144,37 @@ module Mws::Apis::Feeds
       end
 
       def bullet_point(bullet_point)
+        # Max 5
         @delegate.bullet_points ||= []
         @delegate.bullet_points << bullet_point
       end
 
       def search_term(search_term)
+        # Max 5
         @delegate.search_terms ||= []
         @delegate.search_terms << search_term
       end
 
       def used_for(used_for)
+        # Max 5
         @delegate.used_fors ||= []
         @delegate.used_fors << used_for
       end
 
       def other_item_attribute(other_item_attribute)
+        # Max 5
         @delegate.other_item_attributes ||= []
         @delegate.other_item_attributes << other_item_attribute
       end
 
       def target_audience(target_audience)
+        # Max 4
         @delegate.target_audiences ||= []
         @delegate.target_audiences << target_audience
       end
 
       def recommended_browse_node(recommended_browse_node)
+        # Max 2 (EUR only)
         @delegate.recommended_browse_nodes << recommended_browse_node
       end
 
