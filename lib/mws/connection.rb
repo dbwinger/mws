@@ -35,6 +35,7 @@ module Mws
     private
 
     def request(method, path, params, body, overrides)
+      @log.debug "Request body:\n#{body}\n"
       query = Query.new({
         action: overrides[:action],
         version: overrides[:version],
