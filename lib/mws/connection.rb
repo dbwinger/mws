@@ -43,6 +43,7 @@ module Mws
         access: @access,
         list_pattern: overrides.delete(:list_pattern)
       }.merge(params))
+      @log.debug "Request query:\n#{query}\n"
       signer = Signer.new method: method, host: @host, path: path, secret: @secret
       parse response_for(method, path, signer.sign(query), body), overrides
     end
